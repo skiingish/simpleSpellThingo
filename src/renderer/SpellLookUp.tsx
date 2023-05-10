@@ -19,6 +19,8 @@ export default function SpellLookUp() {
       navigator.clipboard.writeText(res);
       setlookUpText('');
       setLoading(false);
+
+      window.electron.ipcRenderer.sendMessage('DB:ADDUPDATEWORD', res);
     } catch (error) {
       console.log(error);
     }
@@ -46,7 +48,7 @@ export default function SpellLookUp() {
             />
             <button type="submit">Submit</button>
           </form>
-          <br></br>
+          <br />
           <div>{suggestion}</div>{' '}
         </>
       )}

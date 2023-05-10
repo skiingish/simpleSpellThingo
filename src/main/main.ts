@@ -15,6 +15,7 @@ import log from 'electron-log';
 import axios, { AxiosResponse } from 'axios';
 import MenuBuilder from './menu';
 import TrayGenerator from './TrayGenerator';
+import dbHandler from './db';
 import { resolveHtmlPath } from './util';
 
 class AppUpdater {
@@ -26,12 +27,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 // Connect device
 ipcMain.handle('HTTP:CHECK_SPELLING', async (event, arg) => {
@@ -76,6 +71,9 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+// init db
+dbHandler.initDb();
+
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -102,6 +100,8 @@ const createWindow = async () => {
     width,
     height,
     icon: getAssetPath('icon.png'),
+    frame: false,
+    fullscreenable: false,
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -119,6 +119,9 @@ const createWindow = async () => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+      mainWindow.setVisibleOnAllWorkspaces(true);
+      const Tray = new TrayGenerator(mainWindow);
+      Tray.createTray();
     }
   });
 
@@ -152,27 +155,20 @@ app.on('window-all-closed', () => {
   }
 });
 
-
-
 app
   .whenReady()
   .then(() => {
     createWindow();
-    const Tray = new TrayGenerator(mainWindow);
-    Tray.createTray();
-
     // Register a 'CommandOrControl+X' shortcut listener.
     const ret = globalShortcut.register('Alt+CommandOrControl+S', () => {
       if (mainWindow.isVisible()) {
-      mainWindow.hide();
-    } else {
-      mainWindow.show();
-      mainWindow.setVisibleOnAllWorkspaces(true);
-      mainWindow.focus();
-      mainWindow.setVisibleOnAllWorkspaces(false);
-    }
-
-
+        mainWindow.hide();
+      } else {
+        mainWindow.show();
+        mainWindow.setVisibleOnAllWorkspaces(true);
+        mainWindow.focus();
+        mainWindow.setVisibleOnAllWorkspaces(false);
+      }
     });
 
     if (!ret) {
@@ -193,4 +189,4 @@ app.on('will-quit', () => {
 
   // Unregister all shortcuts.
   globalShortcut.unregisterAll();
-})
+});

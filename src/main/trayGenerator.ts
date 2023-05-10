@@ -35,16 +35,13 @@ class TrayGenerator {
     this.mainWindow.setVisibleOnAllWorkspaces(false);
   }
 
-  toggleWindow(): void {
+  toggleWindow = () => {
     if (this.mainWindow.isVisible()) {
       this.mainWindow.hide();
     } else {
-      this.mainWindow.show();
-      this.mainWindow.setVisibleOnAllWorkspaces(true);
-      this.mainWindow.focus();
-      this.mainWindow.setVisibleOnAllWorkspaces(false);
+      this.showWindow();
     }
-  }
+  };
 
   rightClickMenu(): void {
     const menu = [
