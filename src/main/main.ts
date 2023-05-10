@@ -28,23 +28,38 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-// Connect device
-ipcMain.handle('HTTP:CHECK_SPELLING', async (event, arg) => {
+// check spelling with http
+ipcMain.handle('HTTP:CHECK_SPELLING', async (event, arg): Promise<any> => {
   try {
+    if (!arg[0]) return;
+
     const lookupData = {
       prompt: arg[0],
     };
 
-    const response: AxiosResponse = await axios.post(
+    const response = await axios.post(
       'https://safespelling.com/api/correct',
       lookupData
     );
-    return response.data;
+
+    const res = {
+      data: response.data,
+      status: response.status,
+    };
+
+    return res;
   } catch (error) {
-    console.log(error);
-    return { error };
+    console.error(error);
+
+    const res = {
+      data: 'Network Error!',
+      status: 500,
+    };
+
+    return res;
   }
 });
+
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

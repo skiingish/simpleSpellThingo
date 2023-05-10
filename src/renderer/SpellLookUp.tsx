@@ -9,18 +9,23 @@ export default function SpellLookUp() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (lookupText === null || lookupText === '') return;
+
     setLoading(true);
     try {
       const res = await window.electron.ipcRenderer.invoke(
         'HTTP:CHECK_SPELLING',
         lookupText
       );
-      setSuggestion(res);
-      navigator.clipboard.writeText(res);
+      setSuggestion(res.data);
+      navigator.clipboard.writeText(res.data);
       setlookUpText('');
       setLoading(false);
 
-      window.electron.ipcRenderer.sendMessage('DB:ADDUPDATEWORD', res);
+      if (res.status === 200) {
+        window.electron.ipcRenderer.sendMessage('DB:ADDUPDATEWORD', res.data);
+      }
     } catch (error) {
       console.log(error);
     }

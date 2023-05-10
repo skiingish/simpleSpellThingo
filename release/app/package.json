@@ -1,12 +1,12 @@
 {
-  "name": "electron-react-boilerplate",
-  "version": "4.6.0",
-  "description": "A foundation for scalable desktop apps",
+  "name": "simple-spell",
+  "version": "0.0.1",
+  "description": "Simple Spell Checker",
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "Sean Corcoran",
+    "email": "",
+    "url": ""
   },
   "main": "./dist/main/main.js",
   "scripts": {
@@ -15,8 +15,6 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
-    "better-sqlite3": "^8.3.0",
-    "i": "^0.3.7",
-    "npm": "^9.6.6"
+    "better-sqlite3": "^8.3.0"
   }
 }
