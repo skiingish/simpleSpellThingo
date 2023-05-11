@@ -1,19 +1,39 @@
+import { app, ipcMain } from 'electron';
 import Database from 'better-sqlite3';
-import { ipcMain } from 'electron';
+import isDev from 'electron-is-dev';
+
+// const dbDirectory = isDev
+//   ? `${app.getAppPath()}\\database`
+//   : app.getAppPath().replace('app.asar', 'localStorage');
+
+const dbDirectory = `${app.getAppPath()}\\database`;
+const dbAddress = `${dbDirectory}\\simpleSpell.db`;
 
 export default class dbHandler {
   static db: any;
 
   static initDb(): void {
-    this.db = new Database('simpleSpell.db', {});
+    this.db = new Database(dbAddress, {});
     this.db.pragma('journal_mode = WAL');
+
+    const createTable = this.db.prepare(`
+  CREATE TABLE IF NOT EXISTS words (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text TEXT UNIQUE,
+    queries INTEGER ,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+    createTable.run();
   }
 }
 
 // Get the current words list
 ipcMain.handle('DB:GETWORDSLIST', async (event, arg) => {
   // Get the top results
-  let stmt = dbHandler.db.prepare(
+  const stmt = dbHandler.db.prepare(
     'SELECT * FROM words ORDER BY queries DESC LIMIT 5'
   );
   return stmt.all();
@@ -50,10 +70,10 @@ ipcMain.on('DB:ADDUPDATEWORD', async (event, arg) => {
   }
 
   // Get the top results
-  let stmt = dbHandler.db.prepare(
+  const stmt = dbHandler.db.prepare(
     'SELECT * FROM words ORDER BY queries DESC LIMIT 5'
   );
-  let result = stmt.all();
+  const result = stmt.all();
 
   console.log(result);
 });
